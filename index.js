@@ -1,19 +1,21 @@
+require('dotenv').config()
 const express = require("express");
-const morgan = require('morgan');
-const cors = require('cors')
+const morgan = require("morgan");
+const cors = require("cors");
+const Phonebook = require("./models/persons.js");
 const app = express();
 
-app.use(express.static('dist'))
-app.use(cors())
-app.use(express.json())
+app.use(express.static("dist"));
+app.use(cors());
+app.use(express.json());
 app.use((req, res, next) => {
-  const requestBody = JSON.stringify(req.body)
+  const requestBody = JSON.stringify(req.body);
 
-  morgan('tiny')(req, res, () => {
-    console.log(requestBody)
-    next()
-  })
-})
+  morgan("tiny")(req, res, () => {
+    console.log(requestBody);
+    next();
+  });
+});
 
 let phonebook = [
   {
@@ -50,16 +52,24 @@ app.get("/api/info", (req, res) => {
 });
 
 app.get("/api/persons", (req, res) => {
-  res.json(phonebook);
+  Phonebook.find({})
+    .then((phonebook) => {
+      res.json(phonebook);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
 app.get("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const person = phonebook.find((person) => person.id === id);
-  if (!person) {
-    res.status(404).send({ error: "Not found" });
-  }
-  res.json(person);
+  Phonebook.findById(req.params.id)
+    .then((phonebook) => {
+      if (phonebook) {
+        res.json(phonebook);
+      } else {
+        res.status(404).send({ error: "Not found" });
+      }
+    });
 });
 
 app.delete("/api/persons/:id", (req, res) => {
@@ -75,28 +85,27 @@ const generateID = (max) => {
 
 app.post("/api/persons", (req, res) => {
   const body = req.body;
-  
+
   if (!body.name || !body.phone) {
-    return res.status(400).json({ 
-      error: "Missing required fields"
-    });
-  } else if (phonebook.find(person => person.name === body.name)){
     return res.status(400).json({
-      error: "Name must be unique"
-      });
+      error: "Missing required fields",
+    });
+  } else if (phonebook.find((person) => person.name === body.name)) {
+    return res.status(400).json({
+      error: "Name must be unique",
+    });
   }
 
   const person = {
     id: generateID(1000),
     name: body.name,
-    phone: body.phone
+    phone: body.phone,
   };
 
   phonebook = phonebook.concat(person);
 
-  res.json(person)
+  res.json(person);
 });
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

@@ -2,7 +2,7 @@ require('dotenv').config()
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
-const Phonebook = require("./models/persons.js");
+const Phonebook = require("./models/person.js");
 const app = express();
 
 app.use(express.static("dist"));
@@ -56,19 +56,12 @@ app.get("/api/persons", (req, res) => {
     .then((phonebook) => {
       res.json(phonebook);
     })
-    .catch((err) => {
-      console.log(err);
-    });
 });
 
 app.get("/api/persons/:id", (req, res) => {
   Phonebook.findById(req.params.id)
     .then((phonebook) => {
-      if (phonebook) {
         res.json(phonebook);
-      } else {
-        res.status(404).send({ error: "Not found" });
-      }
     });
 });
 
@@ -79,9 +72,9 @@ app.delete("/api/persons/:id", (req, res) => {
   res.status(204).end();
 });
 
-const generateID = (max) => {
+/* const generateID = (max) => {
   return Math.floor(Math.random() * max);
-};
+}; */
 
 app.post("/api/persons", (req, res) => {
   const body = req.body;
@@ -97,7 +90,7 @@ app.post("/api/persons", (req, res) => {
   }
 
   const person = {
-    id: generateID(1000),
+    // id: generateID(1000),
     name: body.name,
     phone: body.phone,
   };

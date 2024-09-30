@@ -1,5 +1,10 @@
 const mongoose = require('mongoose');
 
+if(process.argv.length < 3){
+    console.log('Give password as argument');
+    process.exit(1)
+}
+
 const password = process.argv[2];
 
 const url = `mongodb+srv://ichialex5620:${password}@phonebook.wwrk4.mongodb.net/?retryWrites=true&w=majority&appName=Phonebook`

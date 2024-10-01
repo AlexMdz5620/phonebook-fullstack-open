@@ -5,9 +5,10 @@ const cors = require("cors");
 const Phonebook = require("./models/person.js");
 const app = express();
 
-app.use(express.static("dist"));
 app.use(cors());
 app.use(express.json());
+app.use(express.static("dist"));
+
 app.use((req, res, next) => {
   const requestBody = JSON.stringify(req.body);
 
